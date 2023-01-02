@@ -44,7 +44,7 @@ extern "C" {
  * - rtc_init: initialization
  */
 
-#define MHZ (1000000)
+// #define MHZ (1000000)
 
 #define RTC_SLOW_CLK_X32K_CAL_TIMEOUT_THRES(cycles)  (cycles << 12)
 #define RTC_SLOW_CLK_8MD256_CAL_TIMEOUT_THRES(cycles)  (cycles << 12)
