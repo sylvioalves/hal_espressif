@@ -34,7 +34,10 @@
 #include "bootloader_console.h"
 #include "bootloader_flash_priv.h"
 #include "bootloader_soc.h"
+#include "esp_private/esp_mmu_map_private.h"
 #include "esp_private/bootloader_flash_internal.h"
+#include "esp_private/spi_flash_os.h"
+#include "esp_private/mspi_timing_tuning.h"
 #include "esp_efuse.h"
 #include "hal/mmu_hal.h"
 #include "hal/cache_hal.h"
@@ -161,10 +164,8 @@ esp_err_t bootloader_init(void)
         assert(&_data_start <= &_data_end);
     }
 #endif
-#ifndef __ZEPHYR__
     // clear bss section
     bootloader_clear_bss_section();
-#endif
 #endif // !CONFIG_APP_BUILD_TYPE_RAM
 
     // init eFuse virtual mode (read eFuses to RAM)
@@ -181,8 +182,18 @@ esp_err_t bootloader_init(void)
     /* print 2nd bootloader banner */
     bootloader_print_banner();
 
-#ifdef CONFIG_ESP_SIMPLE_BOOT
-    esp_flash_init_default_chip();
+#ifndef CONFIG_BOOTLOADER_MCUBOOT
+	esp_mspi_pin_init();
+	spi_flash_init_chip_state();
+	mspi_timing_flash_tuning();
+	esp_mmu_map_init();
+	spi_flash_guard_set(&g_flash_guard_default_ops);
+	esp_flash_init_default_chip();
+#else
+	// spi_flash_init_chip_state();
+	// esp_flash_init_default_chip();
+	// esp_flash_init_default_chip();
+
 #endif
 
 #if !CONFIG_APP_BUILD_TYPE_PURE_RAM_APP
@@ -191,8 +202,8 @@ esp_err_t bootloader_init(void)
     //init mmu
     mmu_hal_init();
     // update flash ID
-    /* disabled it to enable octal support */
-    // bootloader_flash_update_id();
+    bootloader_flash_update_id();
+
     // Check and run XMC startup flow
     if ((ret = bootloader_flash_xmc_startup()) != ESP_OK) {
         ESP_EARLY_LOGE(TAG, "failed when running XMC startup flow, reboot!");
@@ -220,5 +231,6 @@ esp_err_t bootloader_init(void)
     bootloader_config_wdt();
     // enable RNG early entropy source
     bootloader_enable_random();
+
     return ret;
 }

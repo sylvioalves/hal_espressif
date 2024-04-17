@@ -389,14 +389,9 @@ esp_err_t esp_flash_init_default_chip(void)
     }
     /* TODO: Zephyr workaroud to fix start-up issues
      * if case there is no bootloader involved */
-#ifndef CONFIG_ESP_SIMPLE_BOOT
     if (default_chip.size < legacy_chip->chip_size) {
         ESP_EARLY_LOGE(TAG, "Detected size(%dk) smaller than the size in the binary image header(%dk). Probe failed.", default_chip.size/1024, legacy_chip->chip_size/1024);
         return ESP_ERR_FLASH_SIZE_NOT_MATCH;
-    }
-#endif
-    if (default_chip.size > legacy_chip->chip_size) {
-        ESP_EARLY_LOGW(TAG, "Detected size(%dk) larger than the size in the binary image header(%dk). Using the size in the binary image header.", default_chip.size/1024, legacy_chip->chip_size/1024);
     }
     // Set chip->size equal to ROM flash size(also equal to the size in binary image header), which means the available size that can be used
     default_chip.size = legacy_chip->chip_size;
