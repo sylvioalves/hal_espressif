@@ -743,6 +743,10 @@ void esp_wifi_internal_update_light_sleep_default_params(int min_freq_mhz, int m
 	ARG_UNUSED(max_freq_mhz);
 }
 
+void esp_wifi_internal_update_modem_sleep_default_params(void)
+{
+}
+
 void esp_wifi_set_sleep_min_active_time(uint32_t min_active_time)
 {
 	ARG_UNUSED(min_active_time);
