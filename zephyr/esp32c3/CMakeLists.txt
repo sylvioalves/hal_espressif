@@ -2,6 +2,8 @@
 
 if(CONFIG_SOC_SERIES_ESP32C3)
 
+  include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/esp_blobs.cmake)
+
   zephyr_compile_options(-fstrict-volatile-bitfields)
   zephyr_compile_definitions_ifndef(CONFIG_MCUBOOT CONFIG_APP_BUILD_USE_FLASH_SECTIONS)
   zephyr_compile_definitions_ifndef(asm asm=__asm__)
@@ -426,22 +428,14 @@ if(CONFIG_SOC_SERIES_ESP32C3)
         ../../components/esp_coex/src/lib_printf.c
         )
 
-      zephyr_link_libraries_ifndef(CONFIG_BUILD_ONLY_NO_BLOBS
-        coexist
-          -L${CMAKE_CURRENT_SOURCE_DIR}/../blobs/lib/esp32c3
-        )
+      esp_blobs_link(coexist)
     endif()
 
+    esp_blobs_link(net80211 espnow core pp phy mesh)
+
     zephyr_link_libraries_ifndef(CONFIG_BUILD_ONLY_NO_BLOBS
-      net80211
-      espnow
-      core
-      pp
-      phy
-      mesh
       ## esp-idf wifi libs refer gcc libs symbols, so linked in libgcc
       gcc
-        -L${CMAKE_CURRENT_SOURCE_DIR}/../blobs/lib/esp32c3
       )
   endif()
 
@@ -475,12 +469,8 @@ if(CONFIG_SOC_SERIES_ESP32C3)
         -T${CMAKE_CURRENT_SOURCE_DIR}/../../components/esp_rom/${CONFIG_SOC_SERIES}/ld/${CONFIG_SOC_SERIES}.rom.eco3_bt_funcs.ld
       )
 
-    zephyr_link_libraries_ifndef(CONFIG_BUILD_ONLY_NO_BLOBS
-      ## ble
-      btbb
-      btdm_app
-        -L${CMAKE_CURRENT_SOURCE_DIR}/../blobs/lib/esp32c3
-      )
+    ## ble
+    esp_blobs_link(btbb btdm_app)
   endif()
 
   ## WIFI definitions
