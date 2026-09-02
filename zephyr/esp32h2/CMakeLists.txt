@@ -2,6 +2,8 @@
 
 if(CONFIG_SOC_SERIES_ESP32H2)
 
+  include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/esp_blobs.cmake)
+
   zephyr_compile_options(-fstrict-volatile-bitfields)
   zephyr_compile_definitions_ifndef(CONFIG_MCUBOOT CONFIG_APP_BUILD_USE_FLASH_SECTIONS)
   zephyr_compile_definitions_ifndef(asm asm=__asm__)
@@ -516,10 +518,7 @@ if(CONFIG_SOC_SERIES_ESP32H2)
       ../port/stubs/ieee802154_stubs.c
       )
 
-    zephyr_link_libraries_ifndef(CONFIG_BUILD_ONLY_NO_BLOBS
-      btbb
-        -L${CMAKE_CURRENT_SOURCE_DIR}/../blobs/lib/${CONFIG_SOC_SERIES}
-      )
+    esp_blobs_link(btbb)
   endif()
 
   ## BT definitions
@@ -545,12 +544,8 @@ if(CONFIG_SOC_SERIES_ESP32H2)
       ../port/stubs/phy_stubs.c
       )
 
-    zephyr_link_libraries_ifndef(CONFIG_BUILD_ONLY_NO_BLOBS
-      ## ble
-      btbb
-      ble_app
-        -L${CMAKE_CURRENT_SOURCE_DIR}/../blobs/lib/${CONFIG_SOC_SERIES}
-      )
+    ## ble
+    esp_blobs_link(btbb ble_app)
 
   endif()
 
@@ -579,17 +574,14 @@ if(CONFIG_SOC_SERIES_ESP32H2)
       zephyr_sources(../../components/esp_coex/src/lib_printf.c)
       zephyr_sources_ifdef(CONFIG_BUILD_ONLY_NO_BLOBS ../port/stubs/coex_stubs.c)
 
-      zephyr_link_libraries_ifndef(CONFIG_BUILD_ONLY_NO_BLOBS
-        coexist
-          -L${CMAKE_CURRENT_SOURCE_DIR}/../blobs/lib/${CONFIG_SOC_SERIES}
-        )
+      esp_blobs_link(coexist)
     endif()
 
+    esp_blobs_link(phy)
+
     zephyr_link_libraries_ifndef(CONFIG_BUILD_ONLY_NO_BLOBS
-      phy
       ## esp-idf libs refer gcc libs symbols, so linked in libgcc
       gcc
-        -L${CMAKE_CURRENT_SOURCE_DIR}/../blobs/lib/${CONFIG_SOC_SERIES}
       )
   endif()
 
