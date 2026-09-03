@@ -2,6 +2,8 @@
 
 if(CONFIG_SOC_SERIES_ESP32C61)
 
+  include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/esp_blobs.cmake)
+
   zephyr_compile_options(-fstrict-volatile-bitfields)
   zephyr_compile_definitions_ifndef(CONFIG_MCUBOOT CONFIG_APP_BUILD_USE_FLASH_SECTIONS)
   zephyr_compile_definitions_ifndef(asm asm=__asm__)
@@ -519,23 +521,18 @@ if(CONFIG_SOC_SERIES_ESP32C61)
       zephyr_sources(../../components/esp_coex/src/lib_printf.c)
       zephyr_sources_ifdef(CONFIG_BUILD_ONLY_NO_BLOBS ../port/stubs/coex_stubs.c)
 
+      esp_blobs_link(coexist)
+
       zephyr_link_libraries_ifndef(CONFIG_BUILD_ONLY_NO_BLOBS
-        coexist
-          -L${CMAKE_CURRENT_SOURCE_DIR}/../blobs/lib/${CONFIG_SOC_SERIES}
-          -T${CMAKE_CURRENT_SOURCE_DIR}/../../components/esp_rom/${CONFIG_SOC_SERIES}/ld/${CONFIG_SOC_SERIES}.rom.coexist.ld
+        -T${CMAKE_CURRENT_SOURCE_DIR}/../../components/esp_rom/${CONFIG_SOC_SERIES}/ld/${CONFIG_SOC_SERIES}.rom.coexist.ld
         )
     endif()
 
+    esp_blobs_link(net80211 espnow core pp phy mesh)
+
     zephyr_link_libraries_ifndef(CONFIG_BUILD_ONLY_NO_BLOBS
-      net80211
-      espnow
-      core
-      pp
-      phy
-      mesh
       # wifi libs refer gcc libs symbols, so linked in libgcc
       gcc
-        -L${CMAKE_CURRENT_SOURCE_DIR}/../blobs/lib/${CONFIG_SOC_SERIES}
         -T${CMAKE_CURRENT_SOURCE_DIR}/../../components/esp_rom/${CONFIG_SOC_SERIES}/ld/${CONFIG_SOC_SERIES}.rom.pp.ld
         -T${CMAKE_CURRENT_SOURCE_DIR}/../../components/esp_rom/${CONFIG_SOC_SERIES}/ld/${CONFIG_SOC_SERIES}.rom.phy.ld
         -T${CMAKE_CURRENT_SOURCE_DIR}/../../components/esp_rom/${CONFIG_SOC_SERIES}/ld/${CONFIG_SOC_SERIES}.rom.net80211.ld
@@ -567,12 +564,8 @@ if(CONFIG_SOC_SERIES_ESP32C61)
       ../port/stubs/phy_stubs.c
       )
 
-    zephyr_link_libraries_ifndef(CONFIG_BUILD_ONLY_NO_BLOBS
-      # ble, with btbb after ble_app to resolve its baseband calls
-      ble_app
-      btbb
-        -L${CMAKE_CURRENT_SOURCE_DIR}/../blobs/lib/${CONFIG_SOC_SERIES}
-      )
+    # ble, with btbb after ble_app to resolve its baseband calls
+    esp_blobs_link(ble_app btbb)
 
   endif()
 
