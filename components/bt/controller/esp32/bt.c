@@ -847,6 +847,13 @@ static int32_t task_create_wrapper(void *task_func, const char *name, uint32_t s
     k_thread_name_set(tid, name);
 
 #if defined(CONFIG_SMP)
+    /* k_thread_cpu_pin() is only built with CONFIG_SCHED_CPU_MASK. Pinning is
+     * not optional here: the controller assumes its task and interrupt share a
+     * core, so fail the build rather than silently let the scheduler float it.
+     */
+    BUILD_ASSERT(IS_ENABLED(CONFIG_SCHED_CPU_MASK),
+                 "The Bluetooth controller under SMP requires CONFIG_SCHED_CPU_MASK");
+
     k_thread_cpu_pin(tid, CONFIG_ESP32_BT_CTLR_PINNED_TO_CORE);
     k_thread_start(tid);
 #endif

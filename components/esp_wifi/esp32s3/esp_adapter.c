@@ -475,6 +475,13 @@ static int32_t task_create_pinned_to_core_wrapper(void *task_func, const char *n
 	k_thread_name_set(tid, name);
 
 #if defined(CONFIG_SMP)
+	/* k_thread_cpu_pin() is only built with CONFIG_SCHED_CPU_MASK. Pinning is
+	 * not optional here: the blob assumes its task and interrupt share a core,
+	 * so fail the build rather than silently let the scheduler float the task.
+	 */
+	BUILD_ASSERT(IS_ENABLED(CONFIG_SCHED_CPU_MASK),
+		     "WIFI_ESP32 under SMP requires CONFIG_SCHED_CPU_MASK to pin the Wi-Fi task");
+
 	k_thread_cpu_pin(tid, IS_ENABLED(CONFIG_ESP_WIFI_TASK_PINNED_TO_CORE_1) ? 1 : 0);
 	k_thread_start(tid);
 #endif
