@@ -661,6 +661,7 @@ if(CONFIG_SOC_SERIES_ESP32C3)
     zephyr_sources(
       ../../components/esp_wifi/esp32c3/esp_adapter.c
       ../../components/esp_coex/esp32c3/esp_coex_adapter.c
+      ../../components/esp_wifi/regulatory/esp_wifi_regulatory.c
       ../../components/esp_wifi/src/wifi_init.c
       ../../components/esp_wifi/src/lib_printf.c
       ${WPA_SUPPLICANT_SRCS}
