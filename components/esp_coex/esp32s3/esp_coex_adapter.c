@@ -131,7 +131,7 @@ int32_t esp_coex_common_semphr_take_wrapper(void *semphr, uint32_t block_time_ti
     return 0;
 }
 
-int32_t esp_coex_common_semphr_give_wrapper(void *semphr)
+int32_t IRAM_ATTR esp_coex_common_semphr_give_wrapper(void *semphr)
 {
     k_sem_give((struct k_sem *)semphr);
     return 1;
